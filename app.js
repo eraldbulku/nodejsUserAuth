@@ -1,11 +1,25 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var session = require('express-session');
 var app = express();
 
 mongoose.connect("mongodb://localhost:27017/bookworm");
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
+
+// use ssesions for tracking logins
+app.use(session({
+	secret: 'treehouse',
+	resave: true,
+	saveUninitialized: false
+}));
+
+// make user ID available in templates
+app.use(function(req, res, next) {
+	res.locals.currentUser = req.session.userId;
+	next();
+});
 
 // parse incoming requests
 app.use(bodyParser.json());
